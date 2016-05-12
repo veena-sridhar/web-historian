@@ -49,11 +49,11 @@ exports.isUrlInList = function(urlName, callback) {
 };
 
 exports.addUrlToList = function(urlName, callback) {
-  filename = __dirname.replace(/\/helpers$/, '') + '/archives/sites.txt'; 
-  fs.appendFile(filename, callback(urlName), function (error) {
+  fs.appendFile(exports.paths.list, urlName, function (error) {
     if (error) {
       throw error;
     }
+    callback();
   });
 };
 
@@ -64,17 +64,19 @@ exports.isUrlArchived = function(urlName, callback) {
 };
 
 exports.downloadUrls = function(array) {
- 
-
   _.each(array, function (url) {
-    exports.isUrlArchived(url, function (exists) {
-      console.log(exists);
-      if (exists) {
-        filename = __dirname.replace(/\/helpers$/, '') + '/archives/sites/' + url;
-        console.log('this is the filename', filename);
-        request('http://' + url).pipe(fs.createWriteStream(filename));
-        console.log('this is the url', url);
-      }
-    });
+    request('http://' + url).pipe(fs.createWriteStream(exports.paths.archivedSites + '/' + url));
   });
+
+  // _.each(array, function (url) {
+  //   exports.isUrlArchived(url, function (exists) {
+  //     console.log(exists);
+  //     if (exists) {
+  //       filename = __dirname.replace(/\/helpers$/, '') + '/archives/sites/' + url;
+  //       console.log('this is the filename', filename);
+  //       request('http://' + url).pipe(fs.createWriteStream(filename));
+  //       console.log('this is the url', url);
+  //     }
+  //   });
+  // });
 };

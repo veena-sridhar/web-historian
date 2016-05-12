@@ -29,22 +29,34 @@ exports.handleRequest = function (req, res) {
       res.end();
     });
   } else if (req.method === 'POST') {
-    filename = __dirname.replace(/\/web$/, '') + '/archives/sites.txt'; 
-    fs.appendFile(filename, path.pathname, function (error, result) {
-      filename = __dirname.replace(/\/web$/, '') + '/archives/sites' + path.pathname;
-      fs.writeFile(filename, path.pathname, function (error) {
+    var data = '';
+    req.on('data', function(chunk) {
+      data += chunk;
+      data = data.toString().slice(4) + '\n';
+
+    });
+    req.on('end', function () {
+      archive.addUrlToList(data, function (error, result) {
+        // data = data.toString().slice(4) + '\n';
         if (error) {
-          return error;
+          var statusCode = 404;
+          var headers = defaultCorsHeaders;
+          headers['Content-Type'] = 'text/plain';
+          res.writeHead(statusCode, headers);
+          res.end();
+          return;   
+        } else {
+          var statusCode = 302;
+          var headers = defaultCorsHeaders;
+          headers['Content-Type'] = 'text/plain';
+          res.writeHead(statusCode, headers);
+          res.end(data);
+          return; 
         }
-        var statusCode = 302;
-        var headers = defaultCorsHeaders;
-        headers['Content-Type'] = 'text/plain';
-        res.writeHead(statusCode, headers);
-        res.end();
-        return;
       });
     });
   }
+
 };
 
 
